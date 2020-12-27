@@ -3,22 +3,26 @@ import 'dart:developer';
 
 enum CounterAction { increment, decrement }
 
-class CounterBloc {
+abstract class Dispose {
+  void dispose();
+}
+
+class CounterBloc implements Dispose {
   int _counter;
   final _stateStreamController = StreamController<int>();
 
-  StreamSink<int> get counterSink => _stateStreamController.sink;
+  StreamSink<int> get _counterSink => _stateStreamController.sink;
   Stream<int> get counterStream => _stateStreamController.stream;
 
   final _stateEventController = StreamController<CounterAction>();
 
   StreamSink<CounterAction> get eventSink => _stateEventController.sink;
-  Stream<CounterAction> get eventStream => _stateEventController.stream;
+  Stream<CounterAction> get _eventStream => _stateEventController.stream;
 
   CounterBloc() {
     log("counter bloc constructor invoked");
     _counter = 0;
-    eventStream.listen((event) {
+    _eventStream.listen((event) {
       log("eventStream.listen() method invoked");
       switch (event) {
         case CounterAction.increment:
@@ -30,8 +34,13 @@ class CounterBloc {
           // busines logic
           break;
       }
-
-      counterSink.add(_counter);
+      _counterSink.add(_counter);
     });
+  }
+
+  @override
+  void dispose() {
+    _stateStreamController.close();
+    _stateEventController.close();
   }
 }

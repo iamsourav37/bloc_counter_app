@@ -10,6 +10,12 @@ class _CounterAppState extends State<CounterApp> {
   CounterBloc counterBloc = CounterBloc();
 
   @override
+  void dispose() {
+    counterBloc.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     print("____widget tree_____");
     return Scaffold(
@@ -53,13 +59,18 @@ class _CounterAppState extends State<CounterApp> {
                 stream: counterBloc.counterStream,
                 initialData: 0,
                 builder: (context, snapshot) {
-                  return Text(
-                    snapshot.data.toString(),
-                    style: TextStyle(
-                      fontSize: 26.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  );
+                  // checking hasData is good practice else part showing progress indicator
+                  if (snapshot.hasData) {
+                    return Text(
+                      snapshot.data.toString(),
+                      style: TextStyle(
+                        fontSize: 26.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
                 },
               ),
             ],
